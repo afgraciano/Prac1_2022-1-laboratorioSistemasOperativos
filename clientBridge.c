@@ -128,23 +128,112 @@ int main(int argc, char *argv[]){
 
     char message[] = "mensajeEspecifico";
     int value = 10;
-    
+ 
+ 
+ int opcion;
+ char temp [11];
+  do {
+  printf("Practica 1 escoja una de las 10 opciones a ejecutar\n");
+  printf("1) Leer las lineas de archivo y mostrarlas en orden invertido\n");
+  printf("2) Barajar aleatoriamente las lineas de un archivo\n");
+  printf("3) Analizar archivo verificando que cada { y (  tiene sus respectivos } y ) \n");
+  printf("4) Cola con prioridades de alto, medio, bajo\n");
+  printf("5) Destruccion de lista Completa\n");
+  printf("6) Invertir nodos de una lista\n");
+  printf("7) Concatenar 2 listas\n");
+  printf("8) Rotacion N veces a la derecha de una lista\n");
+  printf("9) Limpiar lista de valores identicos\n");
+  printf("10) Muestra el valor mayor en lista\n");
+  printf("0) Salir 0\n");
+  fgets(temp,11,stdin);
+  opcion=atoi(temp);
+  switch(opcion){
+  	
+  	case 1:
+  		printf("usted selecciono %i\n",opcion);
+  		primerPunto(fd);
+  	break;
+    	
+    	case 2:
+    		printf("usted selecciono %i\n",opcion);
+  		//segundoPunto(fd);
+  	break;
+  	
+  	case 3:
+  		printf("usted selecciono %i\n",opcion);
+  		tercerPunto(fd);
+  	break;
+  	
+  	case 4:
+  		printf("usted selecciono %i\n",opcion);
+  		cuartoPunto(fd);
+  	break;
+  	
+  	case 5:
+  		printf("usted selecciono %i\n",opcion);
+  		//quintoPunto(fd);
+  	break;
+  	
+  	case 6:
+  		printf("usted selecciono %i\n",opcion);
+  		//sextoPunto(fd);
+  	break;
+  	
+  	case 7:
+  		printf("usted selecciono %i\n",opcion);
+  		//septimoPunto(fd);
+  	break;
+  	
+  	case 8:
+  		printf("usted selecciono %i\n",opcion);
+  		//octavoPunto(fd);
+  	break;
+  	
+  	case 9:
+  		printf("usted selecciono %i\n",opcion);
+  		//novenoPunto(fd);
+  	break;
+  	
+  	case 10:
+  		printf("usted selecciono %i\n",opcion);
+  		puntoDiez(fd);
+  	break;
+  	
+  	case 0:
+  	break;
+  	
+  	default:
+  		printf("Opcion incorrecta, debe escojer entre 1 y 10 o cero para salir\n");
+  	break;
+  	
+  
+  }
+  
+  } while(opcion!=0);  
+  /*
+  
     //primerPunto(fd);
     //segundoPunto(fd);
     //tercerPunto(fd);
-    cuartoPunto(fd);
+    //cuartoPunto(fd);
     //quintoPunto(fd);
     //sextoPunto(fd);
     //septimoPunto(fd);
     //octavoPunto(fd);
     //novenoPunto(fd);
-   //puntoDiez(fd);
+   puntoDiez(fd);
 
    
 
     close (fd);
-    return 0;
+    return 0;*/
 }
+
+
+
+
+
+
 
 
 void primerPunto(int fd) {
@@ -239,7 +328,7 @@ void cuartoPunto(int fd){
     char ans[100]; // no empieces con 0 por favor
     int x = 0;
     while(strcmp(ans, "EXIT") != 0){
-        printf("\Escriba la palabra que desea agregar a la cola o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la cola o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") == 0){
@@ -293,7 +382,7 @@ void sextopunto(int fd)
     printf("\nAgreguemos algunos elementos\n");
     char ans[100]; // Just don't init with 0 plz
     while(strcmp(ans, "EXIT") != 0){
-        printf("\nEscriba la palabra que desea agregar a la lista o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la lista o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") != 0){
@@ -314,7 +403,7 @@ void septimopunto(int fd)
     printf("\nAgreguemos algunos elementos a la primera lista.\n");
     char ans[100]; // Just don't init with 0 plz
     while(strcmp(ans, "EXIT") != 0){
-        printf("\nEscriba la palabra que desea agregar a la lista o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la lista o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") != 0){
@@ -326,7 +415,7 @@ void septimopunto(int fd)
     printf("\nAgreguemos algunos elementos a la segunda lista.\n");
     ans[0] = 'n';
     while(strcmp(ans, "EXIT") != 0){
-        printf("\nEscriba la palabra que desea agregar a la lista o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la lista o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") != 0){
@@ -345,7 +434,7 @@ void octavopunto(int fd){
     printf("\nAgreguemos algunos elementos a la primera lista.\n");
     char ans[100]; // Just don't init with 0 plz
     while(strcmp(ans, "EXIT") != 0){
-        printf("\nEscriba la palabra que desea agregar a la lista o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la lista o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") != 0){
@@ -365,7 +454,7 @@ void novenopunto(int fd){
     printf("\nAgreguemos algunos elementos a la primera lista.\n");
     char ans[100]; // Just don't init with 0 plz
     while(strcmp(ans, "EXIT") != 0){
-        printf("\nEscriba la palabra que desea agregar a la lista o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la lista o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") != 0){
@@ -383,7 +472,7 @@ void puntoDiez(int fd){
     printf("\nAgreguemos algunos elementos a la primera lista.\n");
     char ans[100]; // Just don't init with 0 plz
     while(strcmp(ans, "EXIT") != 0){
-        printf("\nEscriba la palabra que desea agregar a la lista o EXIT para salir.\n");
+        printf("\nEscriba la palabra que desea agregar a la lista o EXIT en mayusculas para salir.\n");
         scanf("%s", ans);
         printf("\nInput: %s\n", ans);
         if(strcmp(ans, "EXIT") != 0){
