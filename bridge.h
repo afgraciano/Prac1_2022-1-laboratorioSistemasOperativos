@@ -27,6 +27,7 @@
 
 #define BRIDGE_CREATE_L _IO('p', 15)                    //Create a list
 #define BRIDGE_W_L _IOW('p', 16, char *)
+#define BRIDGE_W_L2 _IOW('p', 27, char *)  
 #define BRIDGE_R_L _IOR('p', 17, char *)
 #define BRIDGE_INVERT_L _IO('p', 18)
 #define BRIDGE_ROTATE_L _IOW('p', 19, int *)

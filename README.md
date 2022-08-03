@@ -33,7 +33,7 @@ Q - Queue and S - Stack):
   <br />#define BRIDGE_END_L _IO('p', 22). 
   <br />#define BRIDGE_CONCAT_L _IO('p', 23). 
   <br />#define BRIDGE_STATE_L _IO('p', 24). 
-  <br />#define BRIDGE_DESTROY_L _IO('p', 25). 
+  <br />#define BRIDGE_DESTROY_L _IO('p', 25).               //<br />#define BRIDGE_W_L2 _IOW('p', 26, char *).
   <br />  
   
 I plan to evolve this repository while I learn to develope kernel modules. I am open to receive all the advices that you consider.

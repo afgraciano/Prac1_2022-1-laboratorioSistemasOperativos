@@ -12,6 +12,7 @@
 #include <linux/seq_file.h>
 #include <asm/uaccess.h>
 #include "bridge.h"
+#include <linux/random.h>
 
 int bridge_major =   BRIDGE_MAJOR;
 int bridge_minor =   0;
@@ -25,10 +26,12 @@ MODULE_AUTHOR("Jheisson Argiro Lopez Restrepo");
 MODULE_LICENSE("Dual BSD/GPL");
 
 LIST_HEAD(stack);
-LIST_HEAD(lista);
-LIST_HEAD(cola_alta);
-LIST_HEAD(cola_media);
-LIST_HEAD(cola_baja);
+LIST_HEAD(lista);//simple_list
+LIST_HEAD(lista2);//simple_lista_2
+
+LIST_HEAD(cola_alta);//hight_Q
+LIST_HEAD(cola_media);//middle_Q
+LIST_HEAD(cola_baja);//low_Q
 
 static void add_element_to_list(char *node_element_msg){
 	struct string_node *tmp_element;
@@ -38,7 +41,17 @@ static void add_element_to_list(char *node_element_msg){
 	list_add_tail(&(tmp_element->list), &lista);
 }
 
-static void add_element_to_cola_alta(char *node_element_msg){
+static void add_element_to_list_2(char *node_element_msg){
+	struct string_node *tmp_element;
+	tmp_element = kmalloc(sizeof(struct string_node), GFP_KERNEL);
+	strcpy(tmp_element->message, node_element_msg);
+	INIT_LIST_HEAD(&tmp_element->list);
+	list_add_tail(&(tmp_element->list), &lista2);
+}
+
+
+static void add_element_to_cola_alta(char *node_element_msg)//add_to_hight_prior_q
+{
 	struct string_node *tmp_element;
 	tmp_element = kmalloc(sizeof(struct string_node), GFP_KERNEL);
 	strcpy(tmp_element->message, node_element_msg);
@@ -46,7 +59,8 @@ static void add_element_to_cola_alta(char *node_element_msg){
 	list_add_tail(&(tmp_element->list), &cola_alta);
 }
 
-static void add_element_to_cola_media(char *node_element_msg){
+static void add_element_to_cola_media(char *node_element_msg)//add_to_middle_prior_q
+{
 	struct string_node *tmp_element;
 	tmp_element = kmalloc(sizeof(struct string_node), GFP_KERNEL);
 	strcpy(tmp_element->message, node_element_msg);
@@ -54,7 +68,8 @@ static void add_element_to_cola_media(char *node_element_msg){
 	list_add_tail(&(tmp_element->list), &cola_media);
 }
 
-static void add_element_to_cola_baja(char *node_element_msg){
+static void add_element_to_cola_baja(char *node_element_msg)//add_to_low_prior_q
+{
 	struct string_node *tmp_element;
 	tmp_element = kmalloc(sizeof(struct string_node), GFP_KERNEL);
 	strcpy(tmp_element->message, node_element_msg);
@@ -62,7 +77,8 @@ static void add_element_to_cola_baja(char *node_element_msg){
 	list_add_tail(&(tmp_element->list), &cola_baja);
 }
 
-static void add_element_to_stack(char *node_element_msg){
+static void add_element_to_stack(char *node_element_msg)
+{
 	struct string_node *tmp_element;
 	tmp_element = kmalloc(sizeof(struct string_node), GFP_KERNEL);
 	strcpy(tmp_element->message, node_element_msg);
@@ -70,8 +86,141 @@ static void add_element_to_stack(char *node_element_msg){
 	list_add(&(tmp_element->list), &stack);
 }
 
-void mylist_exit(void){
+static void invertir_lista(void)//invert_list
+{
+	struct string_node *tmp_element;
+	struct list_head *watch, *prev;
+	list_for_each_prev_safe(watch, prev, &lista)
+	{
+	tmp_element = list_entry(watch, struct string_node, list);
+	printk(KERN_INFO "%s", tmp_element->message);
+	list_del(&(tmp_element->list));
+	list_add_tail(&(tmp_element->list), &lista);
+	}
+}
+
+void rotar_lista(void)//rotate_list
+
+	{
         struct string_node *tmp_element;
+		char message[100];
+		tmp_element = list_last_entry(&lista, struct string_node, list);
+        list_del(&(tmp_element->list));
+		list_add(&(tmp_element->list), &lista);
+   }
+
+static int buscar_duplicado(char *node_element_msg)//search_duplicated
+
+	{
+		if(list_empty(&lista) == 0){
+		struct string_node *tmp_element;
+		struct list_head *watch, *next;
+		int c = 0;//cont = 0
+		list_for_each_safe(watch, next, &lista)
+		{
+			tmp_element = list_entry(watch, struct string_node, list);
+			if(strcmp(tmp_element->message, node_element_msg) == 0)
+			{
+				printk(KERN_INFO "\nENCONTRO DUPLICADO\n");
+				c = c + 1; //cont = cont + 1
+
+			}
+		}
+		if(c > 1)//cont > 1
+		{
+			return 1;
+		}
+
+		}	
+
+        return 0;
+		
+   }
+
+
+static void concatenar_listas(void) //concat_lists
+	{
+		struct string_node *tmp_element;
+		struct list_head *watch, *next;
+		list_for_each_safe(watch, next, &cola_alta)
+		{
+			tmp_element = list_entry(watch, struct string_node, list);
+			list_del(&(tmp_element->list));
+			list_add_tail(&(tmp_element->list), &lista);
+		}
+	}
+
+
+void borrar_lista(void)//delete_list
+
+	{
+		struct string_node *tmp_element;
+		struct list_head *watch, *next;
+		list_for_each_safe(watch, next, &lista)
+		{
+				tmp_element = list_entry(watch, struct string_node, list);
+				list_del(&(tmp_element->list));
+			kfree(tmp_element);
+		}
+			kfree(&lista);
+	}
+
+
+
+static void borrar_lista_entradas_repetidas(void) //delete_repeated_entries_list
+	{
+		struct string_node *tmp_element;
+		struct list_head *watch, *next;
+		list_for_each_safe(watch, next, &lista)
+		{
+			tmp_element = list_entry(watch, struct string_node, list);
+			
+			if(buscar_duplicado(tmp_element->message) == 1)
+			{
+				list_del(&(tmp_element->list));
+				kfree(tmp_element);
+			}
+		}
+	}
+
+static void concatenar_dos_listas(void)//concat_two_list
+	{
+		list_splice(&lista2, &lista);
+	}
+
+void misalida_pila(void)//mystack_exit
+{
+    struct string_node *tmp_element;
+	struct list_head *watch, *next;
+	list_for_each_safe(watch, next, &stack)
+	{
+        	tmp_element = list_entry(watch, struct string_node, list);
+        	list_del(&(tmp_element->list));
+		kfree(tmp_element);
+     	}
+		printk(KERN_INFO "\nPILA VACIADA\n");
+     	//kfree(&stack);
+}
+
+void mylist_exit(void){
+    struct string_node *tmp_element;
+	struct list_head *watch, *next;
+	list_for_each_safe(watch, next, &lista)
+	{
+        	tmp_element = list_entry(watch, struct string_node, list);
+        	list_del(&(tmp_element->list));
+		kfree(tmp_element);
+     	}
+     	printk(KERN_INFO "\nLISTA VACIADA\n");
+     	//kfree(&stack);
+}
+
+
+
+
+
+/*void mylist_exit(void){
+    struct string_node *tmp_element;
 	struct list_head *watch, *next;
 	list_for_each_safe(watch, next, &stack){
         	tmp_element = list_entry(watch, struct string_node, list);
@@ -80,7 +229,7 @@ void mylist_exit(void){
      	}
      	//kfree(&stack);
 }
-
+*/
 struct bridge_dev *bridge_devices;	/* allocated in bridge_init_module */
 
 static long bridge_ioctl(struct file *f, unsigned int cmd, unsigned long arg){
@@ -96,32 +245,35 @@ static long bridge_ioctl(struct file *f, unsigned int cmd, unsigned long arg){
 	    return_value = 1;
 	    break;
 	case BRIDGE_W_HIGH_PRIOR_Q:
-            raw_copy_from_user(message, (char *)arg, 100);
+        raw_copy_from_user(message, (char *)arg, 100);
 	    add_element_to_cola_alta(message);
+		printk(KERN_INFO "message %s\n", "Cola de Alta Prioridad");
 	    break;
 	case BRIDGE_W_MIDDLE_PRIOR_Q:
-            raw_copy_from_user(message, (char *)arg, 100);
+        raw_copy_from_user(message, (char *)arg, 100);
 	    add_element_to_cola_media(message);
+		printk(KERN_INFO "message %s\n", "Cola de Media Prioridad");
 	    break;
 	case BRIDGE_W_LOW_PRIOR_Q:
-            raw_copy_from_user(message, (char *)arg, 100);
+        raw_copy_from_user(message, (char *)arg, 100);
 	    add_element_to_cola_baja(message);
+		printk(KERN_INFO "message %s\n", "Cola de Baja Prioridad");
 	    break;
 	case BRIDGE_R_HIGH_PRIOR_Q:
-            tmp_element = list_first_entry(&cola_alta, struct string_node, list);
-            list_del(&(tmp_element->list));
+        tmp_element = list_first_entry(&cola_alta, struct string_node, list);
+        list_del(&(tmp_element->list));
 	    raw_copy_to_user((char *)arg, tmp_element->message, 100);
 	    kfree(tmp_element);
 	    break;
 	case BRIDGE_R_MIDDLE_PRIOR_Q:
-            tmp_element = list_first_entry(&cola_media, struct string_node, list);
-            list_del(&(tmp_element->list));
+        tmp_element = list_first_entry(&cola_media, struct string_node, list);
+        list_del(&(tmp_element->list));
 	    raw_copy_to_user((char *)arg, tmp_element->message, 100);
 	    kfree(tmp_element);
 	    break;
 	case BRIDGE_R_LOW_PRIOR_Q:
-            tmp_element = list_first_entry(&cola_baja, struct string_node, list);
-            list_del(&(tmp_element->list));
+        tmp_element = list_first_entry(&cola_baja, struct string_node, list);
+        list_del(&(tmp_element->list));
 	    raw_copy_to_user((char *)arg, tmp_element->message, 100);
 	    kfree(tmp_element);
 	    break;
@@ -130,23 +282,23 @@ static long bridge_ioctl(struct file *f, unsigned int cmd, unsigned long arg){
             if(list_empty(&cola_alta) != 0){
             	if(list_empty(&cola_media) != 0){
             		if(list_empty(&cola_baja) !=0){
-            		return_value=0;
+            		return_value = 0;//retorna cero si ninguna cola tiene elementos
             		
             		}else{
             		
-            		return_value=3;
+            		return_value=3;//retorna 3 si la cola de baja prioridad tiene elementos pero no hay en alta o media
             		}
             	}else{ 
             	
-            	return_value=2;
+            	return_value=2;//retorna 2 si la cola de media prioridad tiene elementos pero no hay en alta
             	}
 		
 	    }else{
-		return_value = 1;
+		return_value = 1;//retorna 1 si la cola de alta prioridad tiene elementos
 	    }
             
             
-            printk(KERN_INFO "message %s\n", "bla6");
+            printk(KERN_INFO "Estado de lista simple enviado con éxito");
 	    break;
 	case BRIDGE_DESTROY_Q:
             
@@ -158,50 +310,62 @@ static long bridge_ioctl(struct file *f, unsigned int cmd, unsigned long arg){
 	    printk(KERN_INFO "Stack succesfully created\n");
 	    break;
 	case BRIDGE_W_S:
-            raw_copy_from_user(message, (char *)arg, 100);
+        raw_copy_from_user(message, (char *)arg, 100);
 	    add_element_to_stack(message);
-            printk(KERN_INFO "Element succesfully added to the stack\n");
+        printk(KERN_INFO "Element succesfully added to the stack\n");
 	    break;
 	case BRIDGE_R_S:
 	    tmp_element = list_first_entry(&stack, struct string_node, list);
-            list_del(&(tmp_element->list));
+        list_del(&(tmp_element->list));
 	    raw_copy_to_user((char *)arg, tmp_element->message, 100);
 	    kfree(tmp_element);
 	    break;
 	case BRIDGE_STATE_S:
-            if(list_empty(&stack) != 0){
-		return_value = 0;
-	    }else{
-		return_value = 1;
+        if(list_empty(&stack) != 0)
+		{
+			return_value = 0;
+	    }else
+		{
+			return_value = 1;
 	    }
 	    printk(KERN_INFO "Stack state succesfully sended!!!\n");
 	    break;
 	case BRIDGE_DESTROY_S:
-	    mylist_exit();
-            printk(KERN_INFO "message %s\n", "bla12");
+	    misalida_pila();
+            //printk(KERN_INFO "message %s\n", "bla12");
 	    break;
 	case BRIDGE_CREATE_L:
              printk(KERN_INFO "message %s\n", "bla13");
 	     break;
 	case BRIDGE_W_L:
-             raw_copy_from_user(message, (char *)arg, 100);
- 	     add_element_to_list(message);
-	     break;
+        raw_copy_from_user(message, (char *)arg, 100);
+ 	    add_element_to_list(message);
+		 printk(KERN_INFO "Elemento agregado con éxito a la lista simple");
+	    break;
+	case BRIDGE_W_L2:
+        raw_copy_from_user(message, (char *)arg, 100);
+ 	    add_element_to_list_2(message);
+		 printk(KERN_INFO "Elemento agregado con éxito a la lista simple");
+	    break;
+	
 	case BRIDGE_R_L:
-             tmp_element = list_first_entry(&lista, struct string_node, list);
-             list_del(&(tmp_element->list));
+         tmp_element = list_first_entry(&lista, struct string_node, list);
+         list_del(&(tmp_element->list));
 	     raw_copy_to_user((char *)arg, tmp_element->message, 100);
 	     kfree(tmp_element);
 	     break;
 	case BRIDGE_INVERT_L:
-             printk(KERN_INFO "message %s\n", "bla16");
+            invertir_lista();
+			// printk(KERN_INFO "message %s\n", "bla16");
 	     break;
 	case BRIDGE_ROTATE_L:
-             get_user(data, (int *)arg);
-             printk(KERN_INFO "message %d\n", data);
-	     break;
+			rotar_lista();
+			//get_user(data, (int *)arg);
+        printk(KERN_INFO "message %d\n", data);
+	    break;
 	case BRIDGE_CLEAN_L:
-             printk(KERN_INFO "message %s\n", "bla18");
+			borrar_lista_entradas_repetidas();
+             printk(KERN_INFO "Lista limpiada \n");
 	     break;
 	case BRIDGE_GREATER_VAL_L:
 	     //strcpy((char *)arg, "MensajePrueba");
@@ -211,7 +375,8 @@ static long bridge_ioctl(struct file *f, unsigned int cmd, unsigned long arg){
              printk(KERN_INFO "message %s\n", "bla21");
 	     break;
 	case BRIDGE_CONCAT_L:
-             printk(KERN_INFO "message %s\n", "bla22");
+		concatenar_dos_listas();
+             //printk(KERN_INFO "message %s\n", "bla22");
 	     break;
 	case BRIDGE_STATE_L:
 	    if(list_empty(&lista) != 0){
@@ -219,9 +384,11 @@ static long bridge_ioctl(struct file *f, unsigned int cmd, unsigned long arg){
   	}else{
 		return_value = 1;
 	    }
+		printk(KERN_INFO "\n¡¡¡Estado de lista simple enviado con éxito!!!\n");
 	     break;
 	case BRIDGE_DESTROY_L:
-             printk(KERN_INFO "message %s\n", "bla24");
+	borrar_lista();
+             //printk(KERN_INFO "message %s\n", "bla24");
              break;
 	case BRIDGE_W_CS:
 	    raw_copy_from_user(&tmp, (struct complex_struct *)arg, sizeof(struct complex_struct));
