@@ -48,6 +48,7 @@ __used __section("__versions") = {
 	{ 0xecdcabd2, "copy_user_generic_unrolled" },
 	{ 0x92997ed8, "_printk" },
 	{ 0x37a0cba, "kfree" },
+	{ 0x5b8239ca, "__x86_return_thunk" },
 	{ 0xbdfb6dbb, "__fentry__" },
 };
 

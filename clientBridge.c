@@ -470,6 +470,12 @@ void septimoPunto(int fd)
 
 void octavoPunto(int fd){
     printf("\n8. Rotar lista a la derecha.");
+     int n = 0;
+    printf("\nIngrese las veces que desea rotar la lista a la derecha.");
+   
+   scanf("%d", &n);//leo numero entero de las veces que el usuario quiere rotar la lista
+   
+   
     printf("\nAgreguemos algunos elementos a la primera lista.\n");
     char ans[100]; // no inicie con 0 por favor
     while(strcmp(ans, "EXIT") != 0){
@@ -483,7 +489,13 @@ void octavoPunto(int fd){
         }
     }
     printf("lista rotada\n");
-    send_empty_command(fd, BRIDGE_ROTATE_L);
+    int i=0;
+    for(i=0; i<n; i=i+1)//CICLO PARA ROTAR LA LISTA N VECES
+    {
+    	send_empty_command(fd, BRIDGE_ROTATE_L);
+    	//read_all_messages_list(fd);
+    	printf("\nRotacion de lista a la derecha numero:%d\n\n",i);
+    }
     read_all_messages_list(fd);
     
     send_empty_command(fd, BRIDGE_DESTROY_L);
